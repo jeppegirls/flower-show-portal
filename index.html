@@ -1,3 +1,4 @@
+```html
 <!doctype html>
 <html lang="en">
 <head>
@@ -64,15 +65,12 @@
       filter: blur(.2px);
     }
 
-.wrap{
-  width: min(var(--maxw), calc(100% - 24px));
-  margin: 20px auto 28px;
-  padding-top: 14px; /* 👈 add this (try 12–24px) */
-  padding-top: calc(env(safe-area-inset-top) + 14px);
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-
+    .wrap{
+      width: min(var(--maxw), calc(100% - 24px));
+      margin: 20px auto 28px;
+      padding-top: calc(env(safe-area-inset-top) + 14px);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
 
     header{
       display:flex;
@@ -308,38 +306,6 @@
     .pill.good{ border-color: rgba(22,163,74,.25); color: rgba(21,128,61,.92); background: rgba(34,197,94,.10); }
     .pill.bad{ border-color: rgba(220,38,38,.25); color: rgba(185,28,28,.96); background: rgba(220,38,38,.08); }
 
-    .leaderboard{
-      display:flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .barRow{
-      display:grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
-      align-items:center;
-      border:1px solid var(--stroke);
-      background: rgba(255,255,255,.75);
-      border-radius: 16px;
-      padding: 12px;
-      box-shadow: 0 10px 24px rgba(15,23,42,.06);
-    }
-    .bar{
-      height: 10px;
-      border-radius: 999px;
-      background: rgba(15,23,42,.10);
-      overflow:hidden;
-      margin-top: 8px;
-    }
-    .fill{
-      height: 100%;
-      width: 0%;
-      border-radius: 999px;
-      background: rgba(15,23,42,.85);
-      transition: width .35s ease;
-    }
-
     footer{
       margin-top: 16px;
       text-align:center;
@@ -362,7 +328,7 @@
         </div>
         <div class="title">
           <h1>Jeppe Flower Show Portal</h1>
-          <p>Entries • Judging </p>
+          <p>Entries • Judging</p>
         </div>
       </div>
 
@@ -449,17 +415,6 @@
           <div class="list" id="unjudgedList"></div>
         </div>
 
-        <!-- Leaderboard Panel -->
-        <div id="panelLeaderboard" class="hidden">
-          <div class="actions">
-            <button id="btnLoadLeaderboard" type="button">Load Leaderboard</button>
-            <button id="btnAutoRefresh" class="secondary" type="button">Auto refresh: Off</button>
-          </div>
-
-          <div id="lbBanner" class="banner"></div>
-          <div class="leaderboard" id="leaderboard"></div>
-        </div>
-
         <footer>🌷 Jeppe Flower Show</footer>
       </section>
     </div>
@@ -511,58 +466,52 @@
       ]);
     }
 
- async function apiGET(params){
-  const url = new URL(API_URL);
-  Object.entries(params || {}).forEach(([k,v]) => {
-    if (v !== undefined && v !== null) url.searchParams.set(k, v);
-  });
+    async function apiGET(params){
+      const url = new URL(API_URL);
+      Object.entries(params || {}).forEach(([k,v]) => {
+        if (v !== undefined && v !== null) url.searchParams.set(k, v);
+      });
 
-  // 1) Try normal fetch
-  try{
-    return await withTimeout(async (signal) => {
-      const res = await fetch(url.toString(), { method:"GET", mode:"cors", signal, cache:"no-store" });
-      const text = await res.text();
-      try { return JSON.parse(text); } catch { throw new Error("Bad JSON response"); }
-    });
-  }catch(err){
-    // 2) If fetch fails (often appears as "TypeError: Failed to fetch"), use JSONP fallback
-    const msg = String(err?.message || err || "");
-    const isFetchBlocked = /failed to fetch|networkerror|load failed|cors/i.test(msg);
-    if (!isFetchBlocked) throw err;
-
-    return await jsonpGET(url);
-  }
-}
-
-// JSONP fallback for GET (works even when CORS blocks fetch)
-function jsonpGET(urlObj){
-  return new Promise((resolve, reject) => {
-    const cbName = "cb_" + Math.random().toString(36).slice(2);
-    urlObj.searchParams.set("callback", cbName);
-
-    const script = document.createElement("script");
-    script.async = true;
-    script.src = urlObj.toString();
-
-    const timeout = setTimeout(() => cleanup(new Error("timeout")), 12000);
-
-    function cleanup(err){
-      clearTimeout(timeout);
-      try { delete window[cbName]; } catch {}
-      if (script.parentNode) script.parentNode.removeChild(script);
-      if (err) reject(err);
+      // 1) Try normal fetch
+      try{
+        return await withTimeout(async (signal) => {
+          const res = await fetch(url.toString(), { method:"GET", mode:"cors", signal, cache:"no-store" });
+          const text = await res.text();
+          try { return JSON.parse(text); } catch { throw new Error("Bad JSON response"); }
+        });
+      }catch(err){
+        // 2) If fetch fails, use JSONP fallback
+        const msg = String(err?.message || err || "");
+        const isFetchBlocked = /failed to fetch|networkerror|load failed|cors/i.test(msg);
+        if (!isFetchBlocked) throw err;
+        return await jsonpGET(url);
+      }
     }
 
-    window[cbName] = (data) => {
-      cleanup();
-      resolve(data);
-    };
+    // JSONP fallback for GET (works even when CORS blocks fetch)
+    function jsonpGET(urlObj){
+      return new Promise((resolve, reject) => {
+        const cbName = "cb_" + Math.random().toString(36).slice(2);
+        urlObj.searchParams.set("callback", cbName);
 
-    script.onerror = () => cleanup(new Error("Network error (JSONP failed). Check Apps Script deployment access."));
-    document.body.appendChild(script);
-  });
-}
+        const script = document.createElement("script");
+        script.async = true;
+        script.src = urlObj.toString();
 
+        const timeout = setTimeout(() => cleanup(new Error("timeout")), 12000);
+
+        function cleanup(err){
+          clearTimeout(timeout);
+          try { delete window[cbName]; } catch {}
+          if (script.parentNode) script.parentNode.removeChild(script);
+          if (err) reject(err);
+        }
+
+        window[cbName] = (data) => { cleanup(); resolve(data); };
+        script.onerror = () => cleanup(new Error("Network error (JSONP failed). Check Apps Script deployment access."));
+        document.body.appendChild(script);
+      });
+    }
 
     async function apiPOST(bodyObj){
       return withTimeout(async (signal) => {
@@ -602,7 +551,6 @@ function jsonpGET(urlObj){
       const tabs = [
         {btn:"tabEntries", panel:"panelEntries", title:"Entries", sub:"Enter a learner’s arrangement. Participation points (+1) are added automatically."},
         {btn:"tabJudges", panel:"panelJudges", title:"Judges", sub:"Filter by category and/or LN, then submit awards. “No award” gives 0 points."},
-        {btn:"tabLeaderboard", panel:"panelLeaderboard", title:"Leaderboard", sub:"House totals update immediately after entries and awards."},
       ];
       tabs.forEach(x=>{
         el(x.btn).setAttribute("aria-selected", x.btn===tab ? "true" : "false");
@@ -624,11 +572,13 @@ function jsonpGET(urlObj){
         .replaceAll('"',"&quot;")
         .replaceAll("'","&#039;");
     }
+
     function formatDate(d){
       const dt = new Date(d);
       if(String(dt)==="Invalid Date") return "";
       return dt.toLocaleString(undefined, { year:"numeric", month:"short", day:"2-digit", hour:"2-digit", minute:"2-digit" });
     }
+
     function humanError(err){
       const msg = String(err?.message || err || "Unknown error");
       if(msg.includes("timeout")) return "Request timed out. Check your connection or Apps Script deployment access.";
@@ -776,7 +726,7 @@ function jsonpGET(urlObj){
             const r = await apiPOST({ action:"submitJudgement", entryId, placing });
             if(!r.ok) throw new Error(r.error || "Failed to submit judgement");
             banner("judgeBanner","ok",`Saved: ${placing} (+${Number(r.pointsAwarded||0)} points) for ${r.house}.`);
-            await loadUnjudged(); // refresh with current filters
+            await loadUnjudged();
           }catch(err){
             banner("judgeBanner","bad", humanError(err));
           }finally{
@@ -787,39 +737,9 @@ function jsonpGET(urlObj){
       });
     }
 
-    function renderLeaderboard(rows){
-      const wrap = el("leaderboard");
-      wrap.innerHTML = "";
-
-      if(!rows || !rows.length){
-        const div = document.createElement("div");
-        div.className = "item";
-        div.innerHTML = `<div style="color:var(--muted); font-size:var(--p);">No leaderboard data yet.</div>`;
-        wrap.appendChild(div);
-        return;
-      }
-
-      const max = Math.max(...rows.map(r=>Number(r.points||0)), 1);
-
-      rows.forEach((r, i)=>{
-        const div = document.createElement("div");
-        div.className = "barRow";
-        div.innerHTML = `
-          <div>
-            <div style="display:flex; gap:10px; align-items:baseline; flex-wrap:wrap;">
-              <div style="font-weight:900; font-size:var(--p);">#${i+1} ${escapeHtml(r.house)}</div>
-              <div style="color:var(--muted); font-size:var(--small);">${escapeHtml(r.colour || "")}</div>
-            </div>
-            <div class="bar"><div class="fill" style="width:${Math.round((Number(r.points||0)/max)*100)}%"></div></div>
-          </div>
-          <div style="font-weight:900; font-size:var(--p);">${Number(r.points||0)}</div>
-        `;
-        wrap.appendChild(div);
-      });
-    }
-
     async function ping(){
       try{
+        // Use an endpoint you still have on backend
         const r = await apiGET({ action:"houseLeaderboard" });
         if(r && r.ok){ setStatus(true, "Connected"); return true; }
         setStatus(false, "Offline"); return false;
@@ -894,15 +814,12 @@ function jsonpGET(urlObj){
       el("btnFindEntriesToJudge").textContent = "Loading…";
 
       try{
-        // IMPORTANT: category filter is supported by your backend via ?categoryCode=
         const cat = (el("judgeCategory").value || "").trim();
         const r = await apiGET({ action:"listUnjudged", categoryCode: cat || "" });
         if(!r.ok) throw new Error(r.error || "Failed to load unjudged entries");
 
         lastUnjudgedCache = r.entries || [];
-        const filtered = applyJudgeFilters(lastUnjudgedCache);
-
-        renderUnjudged(filtered);
+        renderUnjudged(applyJudgeFilters(lastUnjudgedCache));
 
         const ln = sanitizeLN(el("lnJudgeSearch").value);
         const msgParts = [];
@@ -917,26 +834,8 @@ function jsonpGET(urlObj){
       }
     }
 
-    let autoTimer = null;
-    async function loadLeaderboard(){
-      clearBanner("lbBanner");
-      el("btnLoadLeaderboard").disabled = true;
-      el("btnLoadLeaderboard").textContent = "Loading…";
-      try{
-        const r = await apiGET({ action:"houseLeaderboard" });
-        if(!r.ok) throw new Error(r.error || "Failed to load leaderboard");
-        renderLeaderboard(r.leaderboard);
-        banner("lbBanner","ok","Leaderboard updated.");
-      }catch(err){
-        banner("lbBanner","bad", humanError(err));
-      }finally{
-        el("btnLoadLeaderboard").disabled = false;
-        el("btnLoadLeaderboard").textContent = "Load Leaderboard";
-      }
-    }
-
     function init(){
-      // fill category selects from your full category list
+      // fill category selects
       fillCategorySelect(el("category"), { includeAll:false });
       fillCategorySelect(el("categoryFilter"), { includeAll:true, allLabel:"All categories" });
       fillCategorySelect(el("judgeCategory"), { includeAll:true, allLabel:"All categories" });
@@ -944,7 +843,6 @@ function jsonpGET(urlObj){
       // tabs
       el("tabEntries").addEventListener("click", ()=>setActiveTab("tabEntries"));
       el("tabJudges").addEventListener("click", ()=>setActiveTab("tabJudges"));
-      el("tabLeaderboard").addEventListener("click", ()=>setActiveTab("tabLeaderboard"));
 
       // entries
       el("btnSaveEntry").addEventListener("click", saveEntry);
@@ -965,29 +863,11 @@ function jsonpGET(urlObj){
       // judges
       el("btnFindEntriesToJudge").addEventListener("click", loadUnjudged);
       el("btnRefreshUnjudged").addEventListener("click", loadUnjudged);
-      el("judgeCategory").addEventListener("change", loadUnjudged); // live filter refresh
-      el("lnJudgeSearch").addEventListener("input", ()=> {
-        // client-side LN filtering without refetch
-        renderUnjudged(applyJudgeFilters(lastUnjudgedCache));
-      });
+      el("judgeCategory").addEventListener("change", loadUnjudged);
+      el("lnJudgeSearch").addEventListener("input", ()=> renderUnjudged(applyJudgeFilters(lastUnjudgedCache)));
 
-      // leaderboard
-      el("btnLoadLeaderboard").addEventListener("click", loadLeaderboard);
-      el("btnAutoRefresh").addEventListener("click", async ()=>{
-        const on = !!autoTimer;
-        if(on){
-          clearInterval(autoTimer);
-          autoTimer = null;
-          el("btnAutoRefresh").textContent = "Auto refresh: Off";
-          banner("lbBanner","warn","Auto refresh stopped.");
-        }else{
-          await loadLeaderboard();
-          autoTimer = setInterval(loadLeaderboard, 15000);
-          el("btnAutoRefresh").textContent = "Auto refresh: On";
-          banner("lbBanner","ok","Auto refresh every 15 seconds.");
-        }
-      });
-
+      // initial tab + ping
+      setActiveTab("tabEntries");
       ping();
     }
 
@@ -995,3 +875,4 @@ function jsonpGET(urlObj){
   </script>
 </body>
 </html>
+```
