@@ -28,7 +28,6 @@
 
       --maxw: 980px;
 
-      /* fluid type */
       --h1: clamp(20px, 2.6vw, 30px);
       --h2: clamp(16px, 2.1vw, 20px);
       --p:  clamp(14px, 1.7vw, 16px);
@@ -51,7 +50,6 @@
       -moz-osx-font-smoothing: grayscale;
     }
 
-    /* subtle floral overlay */
     .petals{
       position: fixed;
       inset: 0;
@@ -101,9 +99,7 @@
     }
     .logo img{ width:100%; height:100%; object-fit:cover; display:block; }
 
-    .title{
-      min-width: 0;
-    }
+    .title{ min-width: 0; }
     .title h1{
       margin:0;
       font-size: var(--h1);
@@ -225,7 +221,7 @@
 
     input, select, button, textarea{
       font: inherit;
-      font-size: 16px; /* prevents mobile zoom */
+      font-size: 16px;
     }
 
     input, select, textarea{
@@ -260,19 +256,10 @@
       touch-action: manipulation;
       flex: 1 1 160px;
     }
-    button.secondary{
-      background: rgba(255,255,255,.85);
-      color: var(--text);
-    }
-    button.ghost{
-      background: transparent;
-      color: var(--text);
-    }
+    button.secondary{ background: rgba(255,255,255,.85); color: var(--text); }
+    button.ghost{ background: transparent; color: var(--text); }
     button:active{ transform: scale(.99); }
-    button:disabled{
-      opacity: .55;
-      cursor:not-allowed;
-    }
+    button:disabled{ opacity: .55; cursor:not-allowed; }
 
     .banner{
       margin-top: 10px;
@@ -389,7 +376,6 @@
     <header>
       <div class="brand">
         <div class="logo" title="Jeppe">
-          <!-- Put your logo file in the SAME repo folder and name it jeppe-logo.png -->
           <img src="jeppe-logo.png" alt="Jeppe logo" onerror="this.style.display='none'; this.parentElement.textContent='🌸';" />
         </div>
         <div class="title">
@@ -413,7 +399,6 @@
     </nav>
 
     <div class="grid">
-      <!-- LEFT: Main -->
       <section class="card" id="mainCard">
         <h2 id="mainTitle">Entries</h2>
         <p class="sub" id="mainSub">Enter a learner’s arrangement. Participation points (+1) are added automatically.</p>
@@ -426,10 +411,10 @@
               <input id="lnEntry" inputmode="numeric" autocomplete="off" placeholder="e.g. 12345" />
             </div>
             <div>
-              <label for="category">Category</label>
+              <label for="category">Category (to submit)</label>
               <select id="category">
                 <option value="">Select a category…</option>
-                <!-- Replace these with your real categories -->
+                <!-- Replace with your real categories -->
                 <option value="A1">A1 — Rose Arrangement</option>
                 <option value="A2">A2 — Wildflowers</option>
                 <option value="B1">B1 — Creative Floral Design</option>
@@ -446,6 +431,17 @@
           <div id="entryBanner" class="banner"></div>
 
           <div class="list" id="learnerBox" style="margin-top:12px;"></div>
+
+          <!-- NEW: Entries filter -->
+          <label for="categoryFilter">Filter entries by category (optional)</label>
+          <select id="categoryFilter">
+            <option value="">All categories</option>
+            <option value="A1">A1 — Rose Arrangement</option>
+            <option value="A2">A2 — Wildflowers</option>
+            <option value="B1">B1 — Creative Floral Design</option>
+            <option value="C1">C1 — Pot Plant</option>
+          </select>
+
           <div class="list" id="entriesList"></div>
         </div>
 
@@ -491,18 +487,16 @@
         </div>
       </section>
 
-      <!-- RIGHT: Quick help -->
       <aside class="card" id="sideCard">
         <h2>Quick Notes</h2>
         <p class="sub">
-          If you host this on GitHub Pages, your Apps Script must be deployed as a Web App
-          and the front-end must call the <b>/exec</b> URL.
+          Hosted on GitHub Pages? This front end calls your Apps Script Web App (<b>/exec</b>) directly.
         </p>
 
         <div class="kvs">
           <div class="kv">
             <b>API URL</b>
-            <input id="apiUrl" placeholder="https://script.google.com/macros/s/AKfycbwLtxl-Dhbpo-BsxoTgTsAADcHA6XKg956nGm7QWAhUtQcfL2fnoMgvxjRTd_8yvZ_Xkg/exec" />
+            <input id="apiUrl" />
             <div class="actions">
               <button id="btnSaveApi" class="secondary" type="button">Save URL</button>
               <button id="btnTestApi" class="ghost" type="button">Test</button>
@@ -512,8 +506,8 @@
           <div class="kv">
             <b>Common Fix</b>
             <div style="font-size:var(--p); color:var(--muted); line-height:1.4;">
-              Use POST with <b>text/plain</b> (this site already does) to avoid CORS preflight errors.
-              Also deploy Apps Script access as <b>Anyone</b>.
+              This site uses POST <b>text/plain</b> to avoid CORS preflight. Your Apps Script must be deployed
+              as Web App with access set to <b>Anyone</b>.
             </div>
           </div>
         </div>
@@ -525,12 +519,10 @@
 
   <script>
     // =========================
-    //  CONFIG
+    //  CONFIG (YOUR URL IS HARD-SET HERE)
     // =========================
     const LS_KEY = "JEPPE_FLOWER_API_URL";
-
-    // set your default here if you want:
-    const DEFAULT_API_URL = "";
+    const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbwLtxl-Dhbpo-BsxoTgTsAADcHA6XKg956nGm7QWAhUtQcfL2fnoMgvxjRTd_8yvZ_Xkg/exec";
 
     function getApiUrl(){
       return (localStorage.getItem(LS_KEY) || DEFAULT_API_URL || "").trim();
@@ -553,23 +545,20 @@
 
     async function apiGET(params){
       const base = getApiUrl();
-      if(!base) throw new Error("Missing API URL. Paste your /exec URL on the right and Save.");
+      if(!base) throw new Error("Missing API URL.");
       const url = new URL(base);
       Object.entries(params || {}).forEach(([k,v]) => url.searchParams.set(k, v));
       return withTimeout(async (signal) => {
         const res = await fetch(url.toString(), { method:"GET", mode:"cors", signal, cache:"no-store" });
         const text = await res.text();
-        let json;
-        try { json = JSON.parse(text); } catch { throw new Error("Bad JSON response"); }
-        return json;
+        try { return JSON.parse(text); } catch { throw new Error("Bad JSON response"); }
       });
     }
 
     async function apiPOST(bodyObj){
       const base = getApiUrl();
-      if(!base) throw new Error("Missing API URL. Paste your /exec URL on the right and Save.");
+      if(!base) throw new Error("Missing API URL.");
       return withTimeout(async (signal) => {
-        // IMPORTANT: text/plain avoids CORS preflight that causes "Network error" on GitHub Pages
         const res = await fetch(base, {
           method: "POST",
           mode: "cors",
@@ -579,9 +568,7 @@
           body: JSON.stringify(bodyObj || {})
         });
         const text = await res.text();
-        let json;
-        try { json = JSON.parse(text); } catch { throw new Error("Bad JSON response"); }
-        return json;
+        try { return JSON.parse(text); } catch { throw new Error("Bad JSON response"); }
       });
     }
 
@@ -589,6 +576,7 @@
     //  UI helpers
     // =========================
     const el = (id) => document.getElementById(id);
+    let lastEntriesCache = []; // used for fast filtering without extra API calls
 
     function banner(target, type, msg){
       const b = el(target);
@@ -660,16 +648,25 @@
     function renderEntries(entries){
       const list = el("entriesList");
       list.innerHTML = "";
-      if(!entries || !entries.length){
+
+      const filter = (el("categoryFilter").value || "").trim();
+      let filtered = (entries || []).slice();
+
+      if (filter) {
+        filtered = filtered.filter(e => String(e.categoryCode || "").trim() === filter);
+      }
+
+      if(!filtered.length){
         const div = document.createElement("div");
         div.className = "item";
-        div.innerHTML = `<div style="color:var(--muted); font-size:var(--p);">No entries found for this learner.</div>`;
+        div.innerHTML = `<div style="color:var(--muted); font-size:var(--p);">
+          ${filter ? "No entries found for this learner in the selected category." : "No entries found for this learner."}
+        </div>`;
         list.appendChild(div);
         return;
       }
 
-      entries
-        .slice()
+      filtered
         .sort((a,b)=> new Date(b.timestamp) - new Date(a.timestamp))
         .forEach(e=>{
           const judged = String(e.judged||"").toUpperCase()==="YES";
@@ -727,7 +724,6 @@
         list.appendChild(div);
       });
 
-      // hook award buttons
       list.querySelectorAll(".btnAward").forEach(btn=>{
         btn.addEventListener("click", async ()=>{
           const entryId = btn.getAttribute("data-entryid");
@@ -745,7 +741,7 @@
             const r = await apiPOST({ action:"submitJudgement", entryId, placing });
             if(!r.ok) throw new Error(r.error || "Failed to submit judgement");
             banner("judgeBanner","ok",`Saved: ${placing} (+${Number(r.pointsAwarded||0)} points) for ${r.house}.`);
-            await loadUnjudged(); // refresh list
+            await loadUnjudged();
           }catch(err){
             banner("judgeBanner","bad", humanError(err));
           }finally{
@@ -803,10 +799,8 @@
 
     function humanError(err){
       const msg = String(err?.message || err || "Unknown error");
-      if(msg.includes("Missing API URL")) return msg;
       if(msg.includes("timeout")) return "Request timed out. Check your connection or Apps Script deployment access.";
-      if(msg.includes("Bad JSON")) return "API returned an unexpected response. Confirm you pasted the correct /exec URL.";
-      // keep it clean and not scary:
+      if(msg.includes("Bad JSON")) return "API returned an unexpected response. Confirm you used the correct /exec URL.";
       return msg.replace(/^Error:\s*/,"");
     }
 
@@ -815,17 +809,11 @@
     // =========================
     async function ping(){
       try{
-        // Lightweight call: houseLeaderboard
         const r = await apiGET({ action:"houseLeaderboard" });
-        if(r && r.ok){
-          setStatus(true, "Connected");
-          return true;
-        }
-        setStatus(false, "Offline");
-        return false;
+        if(r && r.ok){ setStatus(true, "Connected"); return true; }
+        setStatus(false, "Offline"); return false;
       }catch{
-        setStatus(false, "Offline");
-        return false;
+        setStatus(false, "Offline"); return false;
       }
     }
 
@@ -833,6 +821,7 @@
       clearBanner("entryBanner");
       el("learnerBox").innerHTML = "";
       el("entriesList").innerHTML = "";
+      lastEntriesCache = [];
 
       const r1 = await apiGET({ action:"getLearner", ln });
       if(!r1.ok) throw new Error(r1.error || "Learner not found");
@@ -840,7 +829,9 @@
 
       const r2 = await apiGET({ action:"getEntriesByLN", ln });
       if(!r2.ok) throw new Error(r2.error || "Could not load entries");
-      renderEntries(r2.entries);
+
+      lastEntriesCache = r2.entries || [];
+      renderEntries(lastEntriesCache);
     }
 
     async function saveEntry(){
@@ -848,14 +839,8 @@
       const ln = sanitizeLN(el("lnEntry").value);
       const { code, name } = categoryInfo();
 
-      if(!ln){
-        banner("entryBanner","warn","Please enter a Learner Number (LN).");
-        return;
-      }
-      if(!code){
-        banner("entryBanner","warn","Please select a category.");
-        return;
-      }
+      if(!ln){ banner("entryBanner","warn","Please enter a Learner Number (LN)."); return; }
+      if(!code){ banner("entryBanner","warn","Please select a category."); return; }
 
       el("btnSaveEntry").disabled = true;
       el("btnSaveEntry").textContent = "Saving…";
@@ -888,7 +873,6 @@
       el("btnFindEntriesToJudge").textContent = "Loading…";
 
       try{
-        // load all unjudged
         const r = await apiGET({ action:"listUnjudged" });
         if(!r.ok) throw new Error(r.error || "Failed to load unjudged entries");
 
@@ -924,13 +908,16 @@
     }
 
     function init(){
+      // Ensure API is set from default (no need to click Save)
+      if (!localStorage.getItem(LS_KEY)) setApiUrl(DEFAULT_API_URL);
+      el("apiUrl").value = getApiUrl();
+
       // tabs
       el("tabEntries").addEventListener("click", ()=>setActiveTab("tabEntries"));
       el("tabJudges").addEventListener("click", ()=>setActiveTab("tabJudges"));
       el("tabLeaderboard").addEventListener("click", ()=>setActiveTab("tabLeaderboard"));
 
       // API url controls
-      el("apiUrl").value = getApiUrl();
       el("btnSaveApi").addEventListener("click", async ()=>{
         setApiUrl(el("apiUrl").value);
         el("apiUrl").value = getApiUrl();
@@ -951,18 +938,15 @@
           banner("entryBanner","bad", humanError(err));
         }
       });
+      el("lnEntry").addEventListener("keydown", (e)=>{ if(e.key==="Enter") saveEntry(); });
 
-      // Enter key convenience
-      el("lnEntry").addEventListener("keydown", (e)=>{
-        if(e.key==="Enter") saveEntry();
-      });
+      // Entries filter (instant, uses cached entries)
+      el("categoryFilter").addEventListener("change", ()=> renderEntries(lastEntriesCache));
 
       // judges actions
       el("btnFindEntriesToJudge").addEventListener("click", loadUnjudged);
       el("btnRefreshUnjudged").addEventListener("click", loadUnjudged);
-      el("lnJudgeSearch").addEventListener("keydown", (e)=>{
-        if(e.key==="Enter") loadUnjudged();
-      });
+      el("lnJudgeSearch").addEventListener("keydown", (e)=>{ if(e.key==="Enter") loadUnjudged(); });
 
       // leaderboard actions
       el("btnLoadLeaderboard").addEventListener("click", loadLeaderboard);
@@ -981,7 +965,6 @@
         }
       });
 
-      // first ping
       ping();
     }
 
