@@ -172,13 +172,8 @@
 
     .grid{
       display:grid;
-      grid-template-columns: 1.1fr .9fr;
+      grid-template-columns: 1fr;
       gap: 14px;
-    }
-    @media (max-width: 860px){
-      .grid{ grid-template-columns: 1fr; }
-      .right{ display:none; }
-      .title h1{ white-space: normal; }
     }
 
     .card{
@@ -210,6 +205,8 @@
     }
     @media (max-width: 520px){
       .row{ grid-template-columns: 1fr; }
+      .title h1{ white-space: normal; }
+      .right{ display:none; }
     }
 
     label{
@@ -219,12 +216,12 @@
       margin: 10px 0 6px;
     }
 
-    input, select, button, textarea{
+    input, select, button{
       font: inherit;
-      font-size: 16px;
+      font-size: 16px; /* prevents mobile zoom */
     }
 
-    input, select, textarea{
+    input, select{
       width:100%;
       border:1px solid var(--stroke);
       background: var(--inputBg);
@@ -233,7 +230,7 @@
       outline: none;
       box-shadow: 0 10px 24px rgba(15,23,42,.06);
     }
-    input:focus, select:focus, textarea:focus{
+    input:focus, select:focus{
       border-color: rgba(15,23,42,.26);
       box-shadow: 0 0 0 4px rgba(147,197,253,.35), 0 10px 24px rgba(15,23,42,.06);
     }
@@ -257,7 +254,6 @@
       flex: 1 1 160px;
     }
     button.secondary{ background: rgba(255,255,255,.85); color: var(--text); }
-    button.ghost{ background: transparent; color: var(--text); }
     button:active{ transform: scale(.99); }
     button:disabled{ opacity: .55; cursor:not-allowed; }
 
@@ -307,24 +303,6 @@
     }
     .pill.good{ border-color: rgba(22,163,74,.25); color: rgba(21,128,61,.92); background: rgba(34,197,94,.10); }
     .pill.bad{ border-color: rgba(220,38,38,.25); color: rgba(185,28,28,.96); background: rgba(220,38,38,.08); }
-
-    .kvs{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 10px;
-      font-size: var(--p);
-    }
-    @media (max-width: 520px){
-      .kvs{ grid-template-columns: 1fr; }
-    }
-    .kv{
-      border:1px dashed rgba(15,23,42,.16);
-      background: rgba(255,255,255,.55);
-      border-radius: 14px;
-      padding: 10px;
-    }
-    .kv b{ display:block; font-size: var(--small); color: var(--muted); margin-bottom: 4px; }
 
     .leaderboard{
       display:flex;
@@ -380,7 +358,7 @@
         </div>
         <div class="title">
           <h1>Jeppe Flower Show Portal</h1>
-          <p>Mobile-friendly entries, judging & house leaderboard.</p>
+          <p>Entries • Judging • House leaderboard</p>
         </div>
       </div>
 
@@ -412,14 +390,7 @@
             </div>
             <div>
               <label for="category">Category (to submit)</label>
-              <select id="category">
-                <option value="">Select a category…</option>
-                <!-- Replace with your real categories -->
-                <option value="A1">A1 — Rose Arrangement</option>
-                <option value="A2">A2 — Wildflowers</option>
-                <option value="B1">B1 — Creative Floral Design</option>
-                <option value="C1">C1 — Pot Plant</option>
-              </select>
+              <select id="category"></select>
             </div>
           </div>
 
@@ -429,18 +400,10 @@
           </div>
 
           <div id="entryBanner" class="banner"></div>
-
           <div class="list" id="learnerBox" style="margin-top:12px;"></div>
 
-          <!-- NEW: Entries filter -->
           <label for="categoryFilter">Filter entries by category (optional)</label>
-          <select id="categoryFilter">
-            <option value="">All categories</option>
-            <option value="A1">A1 — Rose Arrangement</option>
-            <option value="A2">A2 — Wildflowers</option>
-            <option value="B1">B1 — Creative Floral Design</option>
-            <option value="C1">C1 — Pot Plant</option>
-          </select>
+          <select id="categoryFilter"></select>
 
           <div class="list" id="entriesList"></div>
         </div>
@@ -449,9 +412,16 @@
         <div id="panelJudges" class="hidden">
           <div class="row">
             <div>
-              <label for="lnJudgeSearch">Search by Learner Number (LN)</label>
-              <input id="lnJudgeSearch" inputmode="numeric" autocomplete="off" placeholder="e.g. 12345" />
+              <label for="lnJudgeSearch">Learner Number (LN) (optional)</label>
+              <input id="lnJudgeSearch" inputmode="numeric" autocomplete="off" placeholder="Leave blank to show all" />
             </div>
+            <div>
+              <label for="judgeCategory">Filter by category (optional)</label>
+              <select id="judgeCategory"></select>
+            </div>
+          </div>
+
+          <div class="row">
             <div>
               <label for="placing">Award</label>
               <select id="placing">
@@ -464,6 +434,7 @@
                 <option>Special</option>
               </select>
             </div>
+            <div></div>
           </div>
 
           <div class="actions">
@@ -485,55 +456,49 @@
           <div id="lbBanner" class="banner"></div>
           <div class="leaderboard" id="leaderboard"></div>
         </div>
+
+        <footer>🌷 Jeppe Flower Show</footer>
       </section>
-
-      <aside class="card" id="sideCard">
-        <h2>Quick Notes</h2>
-        <p class="sub">
-          Hosted on GitHub Pages? This front end calls your Apps Script Web App (<b>/exec</b>) directly.
-        </p>
-
-        <div class="kvs">
-          <div class="kv">
-            <b>API URL</b>
-            <input id="apiUrl" />
-            <div class="actions">
-              <button id="btnSaveApi" class="secondary" type="button">Save URL</button>
-              <button id="btnTestApi" class="ghost" type="button">Test</button>
-            </div>
-          </div>
-
-          <div class="kv">
-            <b>Common Fix</b>
-            <div style="font-size:var(--p); color:var(--muted); line-height:1.4;">
-              This site uses POST <b>text/plain</b> to avoid CORS preflight. Your Apps Script must be deployed
-              as Web App with access set to <b>Anyone</b>.
-            </div>
-          </div>
-        </div>
-
-        <footer>🌷 Jeppe Flower Show • Built for phones first</footer>
-      </aside>
     </div>
   </div>
 
   <script>
     // =========================
-    //  CONFIG (YOUR URL IS HARD-SET HERE)
+    //  API URL (hard-coded)
     // =========================
-    const LS_KEY = "JEPPE_FLOWER_API_URL";
-    const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbwLtxl-Dhbpo-BsxoTgTsAADcHA6XKg956nGm7QWAhUtQcfL2fnoMgvxjRTd_8yvZ_Xkg/exec";
-
-    function getApiUrl(){
-      return (localStorage.getItem(LS_KEY) || DEFAULT_API_URL || "").trim();
-    }
-    function setApiUrl(url){
-      localStorage.setItem(LS_KEY, (url || "").trim());
-    }
+    const API_URL = "https://script.google.com/macros/s/AKfycbwLtxl-Dhbpo-BsxoTgTsAADcHA6XKg956nGm7QWAhUtQcfL2fnoMgvxjRTd_8yvZ_Xkg/exec";
 
     // =========================
-    //  SAFE FETCH (no-preflight POST)
+    //  Categories (complete list)
     // =========================
+    const categories = [
+      ["A1", "Roses – white/cream"],
+      ["A2", "Roses – yellow/orange"],
+      ["A3", "Roses – pink (any shade)"],
+      ["A4", "Roses – red (any shade)"],
+      ["A5", "Roses – variegated / other colour"],
+      ["A6", "Miniature roses – any colour"],
+      ["A7", "Dahlias – small/medium (≤ 8cm width)"],
+      ["A8", "Dahlias – large (> 8cm width)"],
+      ["A9", "Any homegrown flowers"],
+      ["A10", "Daisies"],
+      ["B1", "Table centre-piece"],
+      ["B2", "Shades of Green (all-green arrangement)"],
+      ["B3", "Unorthodox flowers (anything but paper)"],
+      ["B4", "Technicolour Telecommunication"],
+      ["B5", "Devil Wears Prada (fashion accessory as container)"],
+      ["B6", "Sassy Succulents"],
+      ["B7a", "Paper flowers – 2/3 individual flowers"],
+      ["B7b", "Paper flowers – Go wild (creative paper flower arrangements)"],
+      ["B8", "Crimson Passion"],
+      ["B9", "Doek Designs (headwrap around a vase)"],
+      ["B10", "Echoing the Artwork (inspired by a famous painting)"],
+    ];
+
+    const el = (id) => document.getElementById(id);
+    let lastEntriesCache = [];
+    let lastUnjudgedCache = [];
+
     function withTimeout(promise, ms=12000){
       const ctrl = new AbortController();
       const t = setTimeout(() => ctrl.abort(), ms);
@@ -544,10 +509,10 @@
     }
 
     async function apiGET(params){
-      const base = getApiUrl();
-      if(!base) throw new Error("Missing API URL.");
-      const url = new URL(base);
-      Object.entries(params || {}).forEach(([k,v]) => url.searchParams.set(k, v));
+      const url = new URL(API_URL);
+      Object.entries(params || {}).forEach(([k,v]) => {
+        if (v !== undefined && v !== null) url.searchParams.set(k, v);
+      });
       return withTimeout(async (signal) => {
         const res = await fetch(url.toString(), { method:"GET", mode:"cors", signal, cache:"no-store" });
         const text = await res.text();
@@ -556,27 +521,19 @@
     }
 
     async function apiPOST(bodyObj){
-      const base = getApiUrl();
-      if(!base) throw new Error("Missing API URL.");
       return withTimeout(async (signal) => {
-        const res = await fetch(base, {
+        const res = await fetch(API_URL, {
           method: "POST",
           mode: "cors",
           signal,
           cache: "no-store",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          headers: { "Content-Type": "text/plain;charset=utf-8" }, // avoids preflight in most cases
           body: JSON.stringify(bodyObj || {})
         });
         const text = await res.text();
         try { return JSON.parse(text); } catch { throw new Error("Bad JSON response"); }
       });
     }
-
-    // =========================
-    //  UI helpers
-    // =========================
-    const el = (id) => document.getElementById(id);
-    let lastEntriesCache = []; // used for fast filtering without extra API calls
 
     function banner(target, type, msg){
       const b = el(target);
@@ -600,7 +557,7 @@
     function setActiveTab(tab){
       const tabs = [
         {btn:"tabEntries", panel:"panelEntries", title:"Entries", sub:"Enter a learner’s arrangement. Participation points (+1) are added automatically."},
-        {btn:"tabJudges", panel:"panelJudges", title:"Judges", sub:"Search by Learner Number (LN), then award a placing. “No award” gives 0 points."},
+        {btn:"tabJudges", panel:"panelJudges", title:"Judges", sub:"Filter by category and/or LN, then submit awards. “No award” gives 0 points."},
         {btn:"tabLeaderboard", panel:"panelLeaderboard", title:"Leaderboard", sub:"House totals update immediately after entries and awards."},
       ];
       tabs.forEach(x=>{
@@ -613,15 +570,52 @@
       });
     }
 
-    function sanitizeLN(v){
-      return String(v||"").trim().replace(/\s+/g,"");
+    function sanitizeLN(v){ return String(v||"").trim().replace(/\s+/g,""); }
+
+    function escapeHtml(s){
+      return String(s ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+    function formatDate(d){
+      const dt = new Date(d);
+      if(String(dt)==="Invalid Date") return "";
+      return dt.toLocaleString(undefined, { year:"numeric", month:"short", day:"2-digit", hour:"2-digit", minute:"2-digit" });
+    }
+    function humanError(err){
+      const msg = String(err?.message || err || "Unknown error");
+      if(msg.includes("timeout")) return "Request timed out. Check your connection or Apps Script deployment access.";
+      if(msg.includes("Bad JSON")) return "API returned an unexpected response. Confirm you used the correct /exec URL.";
+      return msg.replace(/^Error:\s*/,"");
     }
 
-    function categoryInfo(){
-      const sel = el("category");
-      const code = sel.value.trim();
-      const name = sel.value ? sel.options[sel.selectedIndex].text : "";
-      return { code, name };
+    function fillCategorySelect(selectEl, { includeAll=false, allLabel="All categories" } = {}){
+      selectEl.innerHTML = "";
+      if (includeAll) {
+        const o = document.createElement("option");
+        o.value = "";
+        o.textContent = allLabel;
+        selectEl.appendChild(o);
+      } else {
+        const o = document.createElement("option");
+        o.value = "";
+        o.textContent = "Select a category…";
+        selectEl.appendChild(o);
+      }
+      categories.forEach(([code, name])=>{
+        const opt = document.createElement("option");
+        opt.value = code;
+        opt.textContent = `${code} — ${name}`;
+        selectEl.appendChild(opt);
+      });
+    }
+
+    function categoryNameFromCode(code){
+      const hit = categories.find(c => c[0] === code);
+      return hit ? `${hit[0]} — ${hit[1]}` : code;
     }
 
     function renderLearner(learner){
@@ -651,16 +645,13 @@
 
       const filter = (el("categoryFilter").value || "").trim();
       let filtered = (entries || []).slice();
-
-      if (filter) {
-        filtered = filtered.filter(e => String(e.categoryCode || "").trim() === filter);
-      }
+      if (filter) filtered = filtered.filter(e => String(e.categoryCode||"").trim() === filter);
 
       if(!filtered.length){
         const div = document.createElement("div");
         div.className = "item";
         div.innerHTML = `<div style="color:var(--muted); font-size:var(--p);">
-          ${filter ? "No entries found for this learner in the selected category." : "No entries found for this learner."}
+          ${filter ? "No entries found in the selected category." : "No entries found for this learner."}
         </div>`;
         list.appendChild(div);
         return;
@@ -741,7 +732,7 @@
             const r = await apiPOST({ action:"submitJudgement", entryId, placing });
             if(!r.ok) throw new Error(r.error || "Failed to submit judgement");
             banner("judgeBanner","ok",`Saved: ${placing} (+${Number(r.pointsAwarded||0)} points) for ${r.house}.`);
-            await loadUnjudged();
+            await loadUnjudged(); // refresh with current filters
           }catch(err){
             banner("judgeBanner","bad", humanError(err));
           }finally{
@@ -783,30 +774,6 @@
       });
     }
 
-    function escapeHtml(s){
-      return String(s ?? "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
-    function formatDate(d){
-      const dt = new Date(d);
-      if(String(dt)==="Invalid Date") return "";
-      return dt.toLocaleString(undefined, { year:"numeric", month:"short", day:"2-digit", hour:"2-digit", minute:"2-digit" });
-    }
-
-    function humanError(err){
-      const msg = String(err?.message || err || "Unknown error");
-      if(msg.includes("timeout")) return "Request timed out. Check your connection or Apps Script deployment access.";
-      if(msg.includes("Bad JSON")) return "API returned an unexpected response. Confirm you used the correct /exec URL.";
-      return msg.replace(/^Error:\s*/,"");
-    }
-
-    // =========================
-    //  Actions
-    // =========================
     async function ping(){
       try{
         const r = await apiGET({ action:"houseLeaderboard" });
@@ -837,7 +804,8 @@
     async function saveEntry(){
       clearBanner("entryBanner");
       const ln = sanitizeLN(el("lnEntry").value);
-      const { code, name } = categoryInfo();
+      const code = (el("category").value || "").trim();
+      const name = code ? categoryNameFromCode(code) : "";
 
       if(!ln){ banner("entryBanner","warn","Please enter a Learner Number (LN)."); return; }
       if(!code){ banner("entryBanner","warn","Please select a category."); return; }
@@ -865,22 +833,38 @@
       }
     }
 
+    function applyJudgeFilters(list){
+      const ln = sanitizeLN(el("lnJudgeSearch").value);
+      const cat = (el("judgeCategory").value || "").trim();
+
+      let filtered = (list || []).slice();
+      if (cat) filtered = filtered.filter(x => String(x.categoryCode||"").trim() === cat);
+      if (ln)  filtered = filtered.filter(x => String(x.ln||"").trim() === ln);
+      return filtered;
+    }
+
     async function loadUnjudged(){
       clearBanner("judgeBanner");
-      const ln = sanitizeLN(el("lnJudgeSearch").value);
 
       el("btnFindEntriesToJudge").disabled = true;
       el("btnFindEntriesToJudge").textContent = "Loading…";
 
       try{
-        const r = await apiGET({ action:"listUnjudged" });
+        // IMPORTANT: category filter is supported by your backend via ?categoryCode=
+        const cat = (el("judgeCategory").value || "").trim();
+        const r = await apiGET({ action:"listUnjudged", categoryCode: cat || "" });
         if(!r.ok) throw new Error(r.error || "Failed to load unjudged entries");
 
-        let list = r.entries || [];
-        if(ln) list = list.filter(x => String(x.ln||"").trim() === ln);
+        lastUnjudgedCache = r.entries || [];
+        const filtered = applyJudgeFilters(lastUnjudgedCache);
 
-        renderUnjudged(list);
-        banner("judgeBanner","ok", ln ? `Showing unjudged entries for LN ${ln}.` : "Showing all unjudged entries.");
+        renderUnjudged(filtered);
+
+        const ln = sanitizeLN(el("lnJudgeSearch").value);
+        const msgParts = [];
+        if (cat) msgParts.push(`Category ${cat}`);
+        if (ln) msgParts.push(`LN ${ln}`);
+        banner("judgeBanner","ok", msgParts.length ? `Showing unjudged entries for ${msgParts.join(" • ")}.` : "Showing all unjudged entries.");
       }catch(err){
         banner("judgeBanner","bad", humanError(err));
       }finally{
@@ -908,24 +892,17 @@
     }
 
     function init(){
-      // Ensure API is set from default (no need to click Save)
-      if (!localStorage.getItem(LS_KEY)) setApiUrl(DEFAULT_API_URL);
-      el("apiUrl").value = getApiUrl();
+      // fill category selects from your full category list
+      fillCategorySelect(el("category"), { includeAll:false });
+      fillCategorySelect(el("categoryFilter"), { includeAll:true, allLabel:"All categories" });
+      fillCategorySelect(el("judgeCategory"), { includeAll:true, allLabel:"All categories" });
 
       // tabs
       el("tabEntries").addEventListener("click", ()=>setActiveTab("tabEntries"));
       el("tabJudges").addEventListener("click", ()=>setActiveTab("tabJudges"));
       el("tabLeaderboard").addEventListener("click", ()=>setActiveTab("tabLeaderboard"));
 
-      // API url controls
-      el("btnSaveApi").addEventListener("click", async ()=>{
-        setApiUrl(el("apiUrl").value);
-        el("apiUrl").value = getApiUrl();
-        await ping();
-      });
-      el("btnTestApi").addEventListener("click", ping);
-
-      // entry actions
+      // entries
       el("btnSaveEntry").addEventListener("click", saveEntry);
       el("btnLookupLearner").addEventListener("click", async ()=>{
         clearBanner("entryBanner");
@@ -939,16 +916,18 @@
         }
       });
       el("lnEntry").addEventListener("keydown", (e)=>{ if(e.key==="Enter") saveEntry(); });
-
-      // Entries filter (instant, uses cached entries)
       el("categoryFilter").addEventListener("change", ()=> renderEntries(lastEntriesCache));
 
-      // judges actions
+      // judges
       el("btnFindEntriesToJudge").addEventListener("click", loadUnjudged);
       el("btnRefreshUnjudged").addEventListener("click", loadUnjudged);
-      el("lnJudgeSearch").addEventListener("keydown", (e)=>{ if(e.key==="Enter") loadUnjudged(); });
+      el("judgeCategory").addEventListener("change", loadUnjudged); // live filter refresh
+      el("lnJudgeSearch").addEventListener("input", ()=> {
+        // client-side LN filtering without refetch
+        renderUnjudged(applyJudgeFilters(lastUnjudgedCache));
+      });
 
-      // leaderboard actions
+      // leaderboard
       el("btnLoadLeaderboard").addEventListener("click", loadLeaderboard);
       el("btnAutoRefresh").addEventListener("click", async ()=>{
         const on = !!autoTimer;
