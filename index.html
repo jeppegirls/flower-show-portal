@@ -64,11 +64,15 @@
       filter: blur(.2px);
     }
 
-    .wrap{
-      width: min(var(--maxw), calc(100% - 24px));
-      margin: 20px auto 28px;
-      padding-bottom: env(safe-area-inset-bottom);
-    }
+.wrap{
+  width: min(var(--maxw), calc(100% - 24px));
+  margin: 20px auto 28px;
+  padding-top: 14px; /* 👈 add this (try 12–24px) */
+  padding-top: calc(env(safe-area-inset-top) + 14px);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+
 
     header{
       display:flex;
