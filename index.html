@@ -1,0 +1,991 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#f7f7fb" />
+  <title>Jeppe Flower Show Portal</title>
+
+  <style>
+    :root{
+      --bg:#f7f7fb;
+      --card: rgba(255,255,255,.88);
+      --stroke: rgba(15,23,42,.12);
+      --text: rgba(15,23,42,.92);
+      --muted: rgba(15,23,42,.62);
+      --shadow: 0 18px 50px rgba(15,23,42,.10);
+      --radius: 18px;
+
+      --pink: rgba(244,114,182,.20);
+      --blue: rgba(147,197,253,.30);
+      --green: rgba(34,197,94,.16);
+      --gold: rgba(250,204,21,.18);
+
+      --inputBg: rgba(255,255,255,.92);
+      --danger:#dc2626;
+      --ok:#16a34a;
+      --warn:#f59e0b;
+
+      --maxw: 980px;
+
+      /* fluid type */
+      --h1: clamp(20px, 2.6vw, 30px);
+      --h2: clamp(16px, 2.1vw, 20px);
+      --p:  clamp(14px, 1.7vw, 16px);
+      --small: clamp(12px, 1.5vw, 13px);
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(900px 600px at 10% -10%, var(--pink), transparent 60%),
+        radial-gradient(900px 600px at 90% 0%, var(--blue), transparent 55%),
+        radial-gradient(900px 600px at 30% 120%, var(--green), transparent 55%),
+        linear-gradient(180deg, var(--bg), #ffffff);
+      background-attachment: fixed;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* subtle floral overlay */
+    .petals{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .25;
+      background-image:
+        radial-gradient(circle at 10% 15%, rgba(244,114,182,.22) 0 6px, transparent 7px),
+        radial-gradient(circle at 30% 40%, rgba(147,197,253,.22) 0 5px, transparent 6px),
+        radial-gradient(circle at 75% 22%, rgba(34,197,94,.18) 0 6px, transparent 7px),
+        radial-gradient(circle at 85% 70%, rgba(250,204,21,.18) 0 5px, transparent 6px),
+        radial-gradient(circle at 20% 80%, rgba(244,114,182,.18) 0 5px, transparent 6px);
+      filter: blur(.2px);
+    }
+
+    .wrap{
+      width: min(var(--maxw), calc(100% - 24px));
+      margin: 20px auto 28px;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .logo{
+      width:44px;
+      height:44px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.9);
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      flex: 0 0 auto;
+    }
+    .logo img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+    .title{
+      min-width: 0;
+    }
+    .title h1{
+      margin:0;
+      font-size: var(--h1);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .title p{
+      margin: 4px 0 0;
+      font-size: var(--small);
+      color: var(--muted);
+      line-height: 1.3;
+    }
+
+    .right{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex: 0 0 auto;
+    }
+
+    .chip{
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.75);
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-size: var(--small);
+      color: var(--muted);
+      display:flex;
+      gap:8px;
+      align-items:center;
+      box-shadow: 0 10px 25px rgba(15,23,42,.08);
+    }
+    .dot{
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--warn);
+    }
+    .dot.ok{ background: var(--ok); }
+    .dot.bad{ background: var(--danger); }
+
+    nav{
+      display:flex;
+      gap:10px;
+      flex-wrap: wrap;
+      margin: 10px 0 14px;
+    }
+    .tab{
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.78);
+      border-radius: 999px;
+      padding: 10px 12px;
+      font-size: var(--p);
+      line-height: 1;
+      cursor:pointer;
+      user-select:none;
+      box-shadow: 0 10px 25px rgba(15,23,42,.08);
+      transition: transform .08s ease, background .2s ease;
+      touch-action: manipulation;
+    }
+    .tab:active{ transform: scale(.98); }
+    .tab[aria-selected="true"]{
+      background: rgba(15,23,42,.92);
+      color: white;
+      border-color: rgba(15,23,42,.25);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 14px;
+    }
+    @media (max-width: 860px){
+      .grid{ grid-template-columns: 1fr; }
+      .right{ display:none; }
+      .title h1{ white-space: normal; }
+    }
+
+    .card{
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+      overflow:hidden;
+    }
+
+    .card h2{
+      margin: 0 0 10px;
+      font-size: var(--h2);
+      letter-spacing: -0.01em;
+    }
+    .sub{
+      font-size: var(--small);
+      color: var(--muted);
+      margin-top: -6px;
+      margin-bottom: 10px;
+      line-height: 1.35;
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 520px){
+      .row{ grid-template-columns: 1fr; }
+    }
+
+    label{
+      display:block;
+      font-size: var(--small);
+      color: var(--muted);
+      margin: 10px 0 6px;
+    }
+
+    input, select, button, textarea{
+      font: inherit;
+      font-size: 16px; /* prevents mobile zoom */
+    }
+
+    input, select, textarea{
+      width:100%;
+      border:1px solid var(--stroke);
+      background: var(--inputBg);
+      border-radius: 14px;
+      padding: 12px 12px;
+      outline: none;
+      box-shadow: 0 10px 24px rgba(15,23,42,.06);
+    }
+    input:focus, select:focus, textarea:focus{
+      border-color: rgba(15,23,42,.26);
+      box-shadow: 0 0 0 4px rgba(147,197,253,.35), 0 10px 24px rgba(15,23,42,.06);
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    button{
+      border: 1px solid var(--stroke);
+      background: rgba(15,23,42,.92);
+      color: white;
+      padding: 12px 14px;
+      border-radius: 14px;
+      cursor:pointer;
+      box-shadow: 0 14px 35px rgba(15,23,42,.16);
+      transition: transform .08s ease, opacity .2s ease;
+      touch-action: manipulation;
+      flex: 1 1 160px;
+    }
+    button.secondary{
+      background: rgba(255,255,255,.85);
+      color: var(--text);
+    }
+    button.ghost{
+      background: transparent;
+      color: var(--text);
+    }
+    button:active{ transform: scale(.99); }
+    button:disabled{
+      opacity: .55;
+      cursor:not-allowed;
+    }
+
+    .banner{
+      margin-top: 10px;
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-size: var(--p);
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.75);
+      color: var(--muted);
+      display:none;
+    }
+    .banner.show{ display:block; }
+    .banner.ok{ border-color: rgba(22,163,74,.25); color: rgba(21,128,61,.92); background: rgba(34,197,94,.10); }
+    .banner.bad{ border-color: rgba(220,38,38,.25); color: rgba(185,28,28,.96); background: rgba(220,38,38,.08); }
+    .banner.warn{ border-color: rgba(245,158,11,.25); color: rgba(161,98,7,.96); background: rgba(245,158,11,.10); }
+
+    .list{
+      display:flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .item{
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.75);
+      border-radius: 16px;
+      padding: 12px;
+      box-shadow: 0 10px 24px rgba(15,23,42,.06);
+    }
+    .itemTop{
+      display:flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items:flex-start;
+      flex-wrap: wrap;
+    }
+    .pill{
+      font-size: var(--small);
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.9);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .pill.good{ border-color: rgba(22,163,74,.25); color: rgba(21,128,61,.92); background: rgba(34,197,94,.10); }
+    .pill.bad{ border-color: rgba(220,38,38,.25); color: rgba(185,28,28,.96); background: rgba(220,38,38,.08); }
+
+    .kvs{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+      font-size: var(--p);
+    }
+    @media (max-width: 520px){
+      .kvs{ grid-template-columns: 1fr; }
+    }
+    .kv{
+      border:1px dashed rgba(15,23,42,.16);
+      background: rgba(255,255,255,.55);
+      border-radius: 14px;
+      padding: 10px;
+    }
+    .kv b{ display:block; font-size: var(--small); color: var(--muted); margin-bottom: 4px; }
+
+    .leaderboard{
+      display:flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .barRow{
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items:center;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.75);
+      border-radius: 16px;
+      padding: 12px;
+      box-shadow: 0 10px 24px rgba(15,23,42,.06);
+    }
+    .bar{
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(15,23,42,.10);
+      overflow:hidden;
+      margin-top: 8px;
+    }
+    .fill{
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: rgba(15,23,42,.85);
+      transition: width .35s ease;
+    }
+
+    footer{
+      margin-top: 16px;
+      text-align:center;
+      font-size: var(--small);
+      color: var(--muted);
+    }
+
+    .hidden{ display:none !important; }
+  </style>
+</head>
+
+<body>
+  <div class="petals"></div>
+
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" title="Jeppe">
+          <!-- Put your logo file in the SAME repo folder and name it jeppe-logo.png -->
+          <img src="jeppe-logo.png" alt="Jeppe logo" onerror="this.style.display='none'; this.parentElement.textContent='🌸';" />
+        </div>
+        <div class="title">
+          <h1>Jeppe Flower Show Portal</h1>
+          <p>Mobile-friendly entries, judging & house leaderboard.</p>
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="chip" title="API status">
+          <span id="statusDot" class="dot"></span>
+          <span id="statusText">Checking connection…</span>
+        </div>
+      </div>
+    </header>
+
+    <nav aria-label="Sections">
+      <button class="tab" id="tabEntries" aria-selected="true" type="button">Entries</button>
+      <button class="tab" id="tabJudges" aria-selected="false" type="button">Judges</button>
+      <button class="tab" id="tabLeaderboard" aria-selected="false" type="button">Leaderboard</button>
+    </nav>
+
+    <div class="grid">
+      <!-- LEFT: Main -->
+      <section class="card" id="mainCard">
+        <h2 id="mainTitle">Entries</h2>
+        <p class="sub" id="mainSub">Enter a learner’s arrangement. Participation points (+1) are added automatically.</p>
+
+        <!-- Entries Panel -->
+        <div id="panelEntries">
+          <div class="row">
+            <div>
+              <label for="lnEntry">Learner Number (LN)</label>
+              <input id="lnEntry" inputmode="numeric" autocomplete="off" placeholder="e.g. 12345" />
+            </div>
+            <div>
+              <label for="category">Category</label>
+              <select id="category">
+                <option value="">Select a category…</option>
+                <!-- Replace these with your real categories -->
+                <option value="A1">A1 — Rose Arrangement</option>
+                <option value="A2">A2 — Wildflowers</option>
+                <option value="B1">B1 — Creative Floral Design</option>
+                <option value="C1">C1 — Pot Plant</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="btnSaveEntry" type="button">Save Entry (+1 point)</button>
+            <button id="btnLookupLearner" class="secondary" type="button">Lookup Learner</button>
+          </div>
+
+          <div id="entryBanner" class="banner"></div>
+
+          <div class="list" id="learnerBox" style="margin-top:12px;"></div>
+          <div class="list" id="entriesList"></div>
+        </div>
+
+        <!-- Judges Panel -->
+        <div id="panelJudges" class="hidden">
+          <div class="row">
+            <div>
+              <label for="lnJudgeSearch">Search by Learner Number (LN)</label>
+              <input id="lnJudgeSearch" inputmode="numeric" autocomplete="off" placeholder="e.g. 12345" />
+            </div>
+            <div>
+              <label for="placing">Award</label>
+              <select id="placing">
+                <option value="">Select award…</option>
+                <option>No award</option>
+                <option>Commended</option>
+                <option>Third</option>
+                <option>Second</option>
+                <option>First</option>
+                <option>Special</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="btnFindEntriesToJudge" type="button">Find Unjudged Entries</button>
+            <button id="btnRefreshUnjudged" class="secondary" type="button">Refresh</button>
+          </div>
+
+          <div id="judgeBanner" class="banner"></div>
+          <div class="list" id="unjudgedList"></div>
+        </div>
+
+        <!-- Leaderboard Panel -->
+        <div id="panelLeaderboard" class="hidden">
+          <div class="actions">
+            <button id="btnLoadLeaderboard" type="button">Load Leaderboard</button>
+            <button id="btnAutoRefresh" class="secondary" type="button">Auto refresh: Off</button>
+          </div>
+
+          <div id="lbBanner" class="banner"></div>
+          <div class="leaderboard" id="leaderboard"></div>
+        </div>
+      </section>
+
+      <!-- RIGHT: Quick help -->
+      <aside class="card" id="sideCard">
+        <h2>Quick Notes</h2>
+        <p class="sub">
+          If you host this on GitHub Pages, your Apps Script must be deployed as a Web App
+          and the front-end must call the <b>/exec</b> URL.
+        </p>
+
+        <div class="kvs">
+          <div class="kv">
+            <b>API URL</b>
+            <input id="apiUrl" placeholder="Paste your Apps Script /exec URL here" />
+            <div class="actions">
+              <button id="btnSaveApi" class="secondary" type="button">Save URL</button>
+              <button id="btnTestApi" class="ghost" type="button">Test</button>
+            </div>
+          </div>
+
+          <div class="kv">
+            <b>Common Fix</b>
+            <div style="font-size:var(--p); color:var(--muted); line-height:1.4;">
+              Use POST with <b>text/plain</b> (this site already does) to avoid CORS preflight errors.
+              Also deploy Apps Script access as <b>Anyone</b>.
+            </div>
+          </div>
+        </div>
+
+        <footer>🌷 Jeppe Flower Show • Built for phones first</footer>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    // =========================
+    //  CONFIG
+    // =========================
+    const LS_KEY = "JEPPE_FLOWER_API_URL";
+
+    // set your default here if you want:
+    const DEFAULT_API_URL = "";
+
+    function getApiUrl(){
+      return (localStorage.getItem(LS_KEY) || DEFAULT_API_URL || "").trim();
+    }
+    function setApiUrl(url){
+      localStorage.setItem(LS_KEY, (url || "").trim());
+    }
+
+    // =========================
+    //  SAFE FETCH (no-preflight POST)
+    // =========================
+    function withTimeout(promise, ms=12000){
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), ms);
+      return Promise.race([
+        promise(ctrl.signal).finally(()=>clearTimeout(t)),
+        new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")), ms+50))
+      ]);
+    }
+
+    async function apiGET(params){
+      const base = getApiUrl();
+      if(!base) throw new Error("Missing API URL. Paste your /exec URL on the right and Save.");
+      const url = new URL(base);
+      Object.entries(params || {}).forEach(([k,v]) => url.searchParams.set(k, v));
+      return withTimeout(async (signal) => {
+        const res = await fetch(url.toString(), { method:"GET", mode:"cors", signal, cache:"no-store" });
+        const text = await res.text();
+        let json;
+        try { json = JSON.parse(text); } catch { throw new Error("Bad JSON response"); }
+        return json;
+      });
+    }
+
+    async function apiPOST(bodyObj){
+      const base = getApiUrl();
+      if(!base) throw new Error("Missing API URL. Paste your /exec URL on the right and Save.");
+      return withTimeout(async (signal) => {
+        // IMPORTANT: text/plain avoids CORS preflight that causes "Network error" on GitHub Pages
+        const res = await fetch(base, {
+          method: "POST",
+          mode: "cors",
+          signal,
+          cache: "no-store",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(bodyObj || {})
+        });
+        const text = await res.text();
+        let json;
+        try { json = JSON.parse(text); } catch { throw new Error("Bad JSON response"); }
+        return json;
+      });
+    }
+
+    // =========================
+    //  UI helpers
+    // =========================
+    const el = (id) => document.getElementById(id);
+
+    function banner(target, type, msg){
+      const b = el(target);
+      b.className = "banner show " + (type || "");
+      b.textContent = msg || "";
+    }
+    function clearBanner(target){
+      const b = el(target);
+      b.className = "banner";
+      b.textContent = "";
+    }
+
+    function setStatus(ok, text){
+      const dot = el("statusDot");
+      const t = el("statusText");
+      dot.classList.remove("ok","bad");
+      dot.classList.add(ok ? "ok" : "bad");
+      t.textContent = text || (ok ? "Connected" : "Offline");
+    }
+
+    function setActiveTab(tab){
+      const tabs = [
+        {btn:"tabEntries", panel:"panelEntries", title:"Entries", sub:"Enter a learner’s arrangement. Participation points (+1) are added automatically."},
+        {btn:"tabJudges", panel:"panelJudges", title:"Judges", sub:"Search by Learner Number (LN), then award a placing. “No award” gives 0 points."},
+        {btn:"tabLeaderboard", panel:"panelLeaderboard", title:"Leaderboard", sub:"House totals update immediately after entries and awards."},
+      ];
+      tabs.forEach(x=>{
+        el(x.btn).setAttribute("aria-selected", x.btn===tab ? "true" : "false");
+        el(x.panel).classList.toggle("hidden", x.btn!==tab);
+        if(x.btn===tab){
+          el("mainTitle").textContent = x.title;
+          el("mainSub").textContent = x.sub;
+        }
+      });
+    }
+
+    function sanitizeLN(v){
+      return String(v||"").trim().replace(/\s+/g,"");
+    }
+
+    function categoryInfo(){
+      const sel = el("category");
+      const code = sel.value.trim();
+      const name = sel.value ? sel.options[sel.selectedIndex].text : "";
+      return { code, name };
+    }
+
+    function renderLearner(learner){
+      const box = el("learnerBox");
+      box.innerHTML = "";
+      if(!learner) return;
+
+      const div = document.createElement("div");
+      div.className = "item";
+      div.innerHTML = `
+        <div class="itemTop">
+          <div>
+            <div style="font-weight:700; font-size:var(--p);">${escapeHtml(learner.Name)} ${escapeHtml(learner.Surname)}</div>
+            <div style="color:var(--muted); font-size:var(--small); margin-top:4px;">
+              LN: <b>${escapeHtml(learner.LN)}</b> • Class: <b>${escapeHtml(learner.CLASS)}</b>
+            </div>
+          </div>
+          <span class="pill">${escapeHtml(learner.HOUSE)}</span>
+        </div>
+      `;
+      box.appendChild(div);
+    }
+
+    function renderEntries(entries){
+      const list = el("entriesList");
+      list.innerHTML = "";
+      if(!entries || !entries.length){
+        const div = document.createElement("div");
+        div.className = "item";
+        div.innerHTML = `<div style="color:var(--muted); font-size:var(--p);">No entries found for this learner.</div>`;
+        list.appendChild(div);
+        return;
+      }
+
+      entries
+        .slice()
+        .sort((a,b)=> new Date(b.timestamp) - new Date(a.timestamp))
+        .forEach(e=>{
+          const judged = String(e.judged||"").toUpperCase()==="YES";
+          const div = document.createElement("div");
+          div.className = "item";
+          div.innerHTML = `
+            <div class="itemTop">
+              <div>
+                <div style="font-weight:700; font-size:var(--p);">${escapeHtml(e.categoryCode)} — ${escapeHtml(e.categoryName)}</div>
+                <div style="color:var(--muted); font-size:var(--small); margin-top:4px;">
+                  Points: <b>${Number(e.points||0)}</b> • ${formatDate(e.timestamp)}
+                </div>
+              </div>
+              <span class="pill ${judged ? "good":"bad"}">${judged ? ("Judged: " + escapeHtml(e.placing||"")) : "Unjudged"}</span>
+            </div>
+          `;
+          list.appendChild(div);
+        });
+    }
+
+    function renderUnjudged(entries){
+      const list = el("unjudgedList");
+      list.innerHTML = "";
+
+      if(!entries || !entries.length){
+        const div = document.createElement("div");
+        div.className = "item";
+        div.innerHTML = `<div style="color:var(--muted); font-size:var(--p);">No unjudged entries found.</div>`;
+        list.appendChild(div);
+        return;
+      }
+
+      entries.forEach(e=>{
+        const div = document.createElement("div");
+        div.className = "item";
+        div.innerHTML = `
+          <div class="itemTop">
+            <div>
+              <div style="font-weight:800; font-size:var(--p);">
+                ${escapeHtml(e.name)} ${escapeHtml(e.surname)} <span style="font-weight:600; color:var(--muted);">(${escapeHtml(e.className)})</span>
+              </div>
+              <div style="color:var(--muted); font-size:var(--small); margin-top:4px;">
+                LN: <b>${escapeHtml(e.ln)}</b> • House: <b>${escapeHtml(e.house)}</b>
+              </div>
+              <div style="margin-top:6px; font-size:var(--p);">
+                <b>${escapeHtml(e.categoryCode)}</b> — ${escapeHtml(e.categoryName)}
+              </div>
+            </div>
+            <span class="pill bad">Unjudged</span>
+          </div>
+          <div class="actions" style="margin-top:10px;">
+            <button type="button" data-entryid="${escapeHtml(e.entryId)}" class="btnAward">Submit Award</button>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+
+      // hook award buttons
+      list.querySelectorAll(".btnAward").forEach(btn=>{
+        btn.addEventListener("click", async ()=>{
+          const entryId = btn.getAttribute("data-entryid");
+          const placing = (el("placing").value || "").trim();
+          clearBanner("judgeBanner");
+
+          if(!placing){
+            banner("judgeBanner","warn","Please select an award first.");
+            return;
+          }
+
+          btn.disabled = true;
+          btn.textContent = "Submitting…";
+          try{
+            const r = await apiPOST({ action:"submitJudgement", entryId, placing });
+            if(!r.ok) throw new Error(r.error || "Failed to submit judgement");
+            banner("judgeBanner","ok",`Saved: ${placing} (+${Number(r.pointsAwarded||0)} points) for ${r.house}.`);
+            await loadUnjudged(); // refresh list
+          }catch(err){
+            banner("judgeBanner","bad", humanError(err));
+          }finally{
+            btn.disabled = false;
+            btn.textContent = "Submit Award";
+          }
+        });
+      });
+    }
+
+    function renderLeaderboard(rows){
+      const wrap = el("leaderboard");
+      wrap.innerHTML = "";
+
+      if(!rows || !rows.length){
+        const div = document.createElement("div");
+        div.className = "item";
+        div.innerHTML = `<div style="color:var(--muted); font-size:var(--p);">No leaderboard data yet.</div>`;
+        wrap.appendChild(div);
+        return;
+      }
+
+      const max = Math.max(...rows.map(r=>Number(r.points||0)), 1);
+
+      rows.forEach((r, i)=>{
+        const div = document.createElement("div");
+        div.className = "barRow";
+        div.innerHTML = `
+          <div>
+            <div style="display:flex; gap:10px; align-items:baseline; flex-wrap:wrap;">
+              <div style="font-weight:900; font-size:var(--p);">#${i+1} ${escapeHtml(r.house)}</div>
+              <div style="color:var(--muted); font-size:var(--small);">${escapeHtml(r.colour || "")}</div>
+            </div>
+            <div class="bar"><div class="fill" style="width:${Math.round((Number(r.points||0)/max)*100)}%"></div></div>
+          </div>
+          <div style="font-weight:900; font-size:var(--p);">${Number(r.points||0)}</div>
+        `;
+        wrap.appendChild(div);
+      });
+    }
+
+    function escapeHtml(s){
+      return String(s ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+    function formatDate(d){
+      const dt = new Date(d);
+      if(String(dt)==="Invalid Date") return "";
+      return dt.toLocaleString(undefined, { year:"numeric", month:"short", day:"2-digit", hour:"2-digit", minute:"2-digit" });
+    }
+
+    function humanError(err){
+      const msg = String(err?.message || err || "Unknown error");
+      if(msg.includes("Missing API URL")) return msg;
+      if(msg.includes("timeout")) return "Request timed out. Check your connection or Apps Script deployment access.";
+      if(msg.includes("Bad JSON")) return "API returned an unexpected response. Confirm you pasted the correct /exec URL.";
+      // keep it clean and not scary:
+      return msg.replace(/^Error:\s*/,"");
+    }
+
+    // =========================
+    //  Actions
+    // =========================
+    async function ping(){
+      try{
+        // Lightweight call: houseLeaderboard
+        const r = await apiGET({ action:"houseLeaderboard" });
+        if(r && r.ok){
+          setStatus(true, "Connected");
+          return true;
+        }
+        setStatus(false, "Offline");
+        return false;
+      }catch{
+        setStatus(false, "Offline");
+        return false;
+      }
+    }
+
+    async function lookupLearnerAndEntries(ln){
+      clearBanner("entryBanner");
+      el("learnerBox").innerHTML = "";
+      el("entriesList").innerHTML = "";
+
+      const r1 = await apiGET({ action:"getLearner", ln });
+      if(!r1.ok) throw new Error(r1.error || "Learner not found");
+      renderLearner(r1.learner);
+
+      const r2 = await apiGET({ action:"getEntriesByLN", ln });
+      if(!r2.ok) throw new Error(r2.error || "Could not load entries");
+      renderEntries(r2.entries);
+    }
+
+    async function saveEntry(){
+      clearBanner("entryBanner");
+      const ln = sanitizeLN(el("lnEntry").value);
+      const { code, name } = categoryInfo();
+
+      if(!ln){
+        banner("entryBanner","warn","Please enter a Learner Number (LN).");
+        return;
+      }
+      if(!code){
+        banner("entryBanner","warn","Please select a category.");
+        return;
+      }
+
+      el("btnSaveEntry").disabled = true;
+      el("btnSaveEntry").textContent = "Saving…";
+
+      try{
+        const r = await apiPOST({
+          action: "saveEntry",
+          ln,
+          categoryCode: code,
+          categoryName: name,
+          basePoints: 1
+        });
+        if(!r.ok) throw new Error(r.error || "Failed to save entry");
+
+        banner("entryBanner","ok",`Saved! +${Number(r.basePoints||1)} participation point added to ${r.house}.`);
+        await lookupLearnerAndEntries(ln);
+      }catch(err){
+        banner("entryBanner","bad", humanError(err));
+      }finally{
+        el("btnSaveEntry").disabled = false;
+        el("btnSaveEntry").textContent = "Save Entry (+1 point)";
+      }
+    }
+
+    async function loadUnjudged(){
+      clearBanner("judgeBanner");
+      const ln = sanitizeLN(el("lnJudgeSearch").value);
+
+      el("btnFindEntriesToJudge").disabled = true;
+      el("btnFindEntriesToJudge").textContent = "Loading…";
+
+      try{
+        // load all unjudged
+        const r = await apiGET({ action:"listUnjudged" });
+        if(!r.ok) throw new Error(r.error || "Failed to load unjudged entries");
+
+        let list = r.entries || [];
+        if(ln) list = list.filter(x => String(x.ln||"").trim() === ln);
+
+        renderUnjudged(list);
+        banner("judgeBanner","ok", ln ? `Showing unjudged entries for LN ${ln}.` : "Showing all unjudged entries.");
+      }catch(err){
+        banner("judgeBanner","bad", humanError(err));
+      }finally{
+        el("btnFindEntriesToJudge").disabled = false;
+        el("btnFindEntriesToJudge").textContent = "Find Unjudged Entries";
+      }
+    }
+
+    let autoTimer = null;
+    async function loadLeaderboard(){
+      clearBanner("lbBanner");
+      el("btnLoadLeaderboard").disabled = true;
+      el("btnLoadLeaderboard").textContent = "Loading…";
+      try{
+        const r = await apiGET({ action:"houseLeaderboard" });
+        if(!r.ok) throw new Error(r.error || "Failed to load leaderboard");
+        renderLeaderboard(r.leaderboard);
+        banner("lbBanner","ok","Leaderboard updated.");
+      }catch(err){
+        banner("lbBanner","bad", humanError(err));
+      }finally{
+        el("btnLoadLeaderboard").disabled = false;
+        el("btnLoadLeaderboard").textContent = "Load Leaderboard";
+      }
+    }
+
+    function init(){
+      // tabs
+      el("tabEntries").addEventListener("click", ()=>setActiveTab("tabEntries"));
+      el("tabJudges").addEventListener("click", ()=>setActiveTab("tabJudges"));
+      el("tabLeaderboard").addEventListener("click", ()=>setActiveTab("tabLeaderboard"));
+
+      // API url controls
+      el("apiUrl").value = getApiUrl();
+      el("btnSaveApi").addEventListener("click", async ()=>{
+        setApiUrl(el("apiUrl").value);
+        el("apiUrl").value = getApiUrl();
+        await ping();
+      });
+      el("btnTestApi").addEventListener("click", ping);
+
+      // entry actions
+      el("btnSaveEntry").addEventListener("click", saveEntry);
+      el("btnLookupLearner").addEventListener("click", async ()=>{
+        clearBanner("entryBanner");
+        const ln = sanitizeLN(el("lnEntry").value);
+        if(!ln){ banner("entryBanner","warn","Please enter a Learner Number (LN)."); return; }
+        try{
+          await lookupLearnerAndEntries(ln);
+          banner("entryBanner","ok","Learner loaded.");
+        }catch(err){
+          banner("entryBanner","bad", humanError(err));
+        }
+      });
+
+      // Enter key convenience
+      el("lnEntry").addEventListener("keydown", (e)=>{
+        if(e.key==="Enter") saveEntry();
+      });
+
+      // judges actions
+      el("btnFindEntriesToJudge").addEventListener("click", loadUnjudged);
+      el("btnRefreshUnjudged").addEventListener("click", loadUnjudged);
+      el("lnJudgeSearch").addEventListener("keydown", (e)=>{
+        if(e.key==="Enter") loadUnjudged();
+      });
+
+      // leaderboard actions
+      el("btnLoadLeaderboard").addEventListener("click", loadLeaderboard);
+      el("btnAutoRefresh").addEventListener("click", async ()=>{
+        const on = !!autoTimer;
+        if(on){
+          clearInterval(autoTimer);
+          autoTimer = null;
+          el("btnAutoRefresh").textContent = "Auto refresh: Off";
+          banner("lbBanner","warn","Auto refresh stopped.");
+        }else{
+          await loadLeaderboard();
+          autoTimer = setInterval(loadLeaderboard, 15000);
+          el("btnAutoRefresh").textContent = "Auto refresh: On";
+          banner("lbBanner","ok","Auto refresh every 15 seconds.");
+        }
+      });
+
+      // first ping
+      ping();
+    }
+
+    init();
+  </script>
+</body>
+</html>
