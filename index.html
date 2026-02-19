@@ -426,9 +426,11 @@
     const API_URL = "https://script.google.com/macros/s/AKfycby9bmhLhxr-q118wiOeNeZK4KzMPfrIUXB7krk4zJOUlTa2jEcp_4-qHT_MI1VWDfAdtA/exec";
 
     // =========================
-    //  Categories (complete list)
+    //  Categories (complete list) — A, B, C, D
+    //  (House table / pedestal categories intentionally excluded per instruction)
     // =========================
     const categories = [
+      // A — Senior Blooms (Gr 10–12)
       ["A1", "Roses – white/cream"],
       ["A2", "Roses – yellow/orange"],
       ["A3", "Roses – pink (any shade)"],
@@ -439,6 +441,8 @@
       ["A8", "Dahlias – large (> 8cm width)"],
       ["A9", "Any homegrown flowers"],
       ["A10", "Daisies"],
+
+      // B — Senior Flower Arrangements (Gr 10–12)
       ["B1", "Table centre-piece"],
       ["B2", "Shades of Green (all-green arrangement)"],
       ["B3", "Unorthodox flowers (anything but paper)"],
@@ -450,6 +454,30 @@
       ["B8", "Crimson Passion"],
       ["B9", "Doek Designs (headwrap around a vase)"],
       ["B10", "Echoing the Artwork (inspired by a famous painting)"],
+
+      // C — Junior Blooms (Gr 8–9)
+      ["C1", "Roses – white/cream"],
+      ["C2", "Roses – yellow/orange"],
+      ["C3", "Roses – pink (any shade)"],
+      ["C4", "Roses – red (any shade)"],
+      ["C5", "Roses – variegated / other colour"],
+      ["C6", "Miniature roses – any colour"],
+      ["C7", "Dahlias – small/medium (≤ 8cm width)"],
+      ["C8", "Dahlias – large (> 8cm width)"],
+      ["C9", "Any homegrown flowers"],
+      ["C10", "Daisies"],
+
+      // D — Junior Flower Arrangements (Gr 8–9)
+      ["D1", "Table centre-piece (view all round)"],
+      ["D2", "Unorthodox flowers (home-made materials)"],
+      ["D3", "Shades of Green (all-green arrangement)"],
+      ["D4", "Monsters (vegetables ONLY)"],
+      ["D5", "Twister (60th anniversary theme)"],
+      ["D6", "Miniatures (tiny arrangement in small container)"],
+      ["D7", "Orange Fantasy (Lorax inspired arrangement)"],
+      ["D8", "Garden Shed Glow-up (containers from the garden shed)"],
+      ["D9", "Floral Font (first letter of your name)"],
+      ["D10", "Toy Story (use a toy as a container)"],
     ];
 
     const el = (id) => document.getElementById(id);
@@ -874,4 +902,3 @@
   </script>
 </body>
 </html>
-
